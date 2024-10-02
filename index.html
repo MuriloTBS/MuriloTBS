@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galeria de Imagens da NASA</title>
+    <title>Imagens da NASA</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -34,6 +34,7 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             overflow: hidden;
             transition: transform 0.3s ease;
+            position: relative;
         }
         .imagem-item:hover {
             transform: translateY(-5px);
@@ -80,10 +81,14 @@
             border-radius: 4px;
             cursor: pointer;
         }
+        .favorito-destaque {
+            border: 2px solid gold;
+            box-shadow: 0 0 10px gold;
+        }
     </style>
 </head>
 <body>
-    <h1>Galeria de Imagens da NASA</h1>
+    <h1>IMAGENS DA NASA</h1>
     <div id="filtro">
         <input type="text" id="filtroInput" placeholder="Filtrar por título...">
     </div>
@@ -95,10 +100,9 @@
         const apiUrl = `https://api.nasa.gov/planetary/apod?api_key=${apiKey}&count=20`;
         let todasImagens = [];
         let imagensExibidas = [];
-        let pagina = 20;
-        const imagensPorPagina = Infinity;
+        let pagina = 1;
+        const imagensPorPagina = 20;
 
-        
         async function carregarImagens() {
             try {
                 const response = await fetch(apiUrl);
@@ -110,7 +114,6 @@
             }
         }
 
-        
         function exibirImagens() {
             const listaImagens = document.getElementById('listaImagens');
             const startIndex = (pagina - 1) * imagensPorPagina;
@@ -129,7 +132,6 @@
             }
         }
 
-        
         function criarElementoImagem(imagem) {
             const imagemItem = document.createElement('div');
             imagemItem.className = 'imagem-item';
@@ -160,7 +162,6 @@
             return imagemItem;
         }
 
-        
         function mostrarDetalhes(imagem) {
             const imagemItem = document.getElementById(`imagem-${imagem.date}`);
             const descricaoExistente = imagemItem.querySelector('.descricao');
@@ -175,7 +176,6 @@
             }
         }
 
-        
         function alternarFavorito(imagem) {
             let favoritos = JSON.parse(localStorage.getItem('favoritos')) || [];
             const index = favoritos.findIndex(fav => fav.date === imagem.date);
@@ -183,15 +183,16 @@
             if (index === -1) {
                 favoritos.push(imagem);
                 document.getElementById(`imagem-${imagem.date}`).querySelector('.favorito-btn').classList.add('favoritado');
+                document.getElementById(`imagem-${imagem.date}`).classList.add('favorito-destaque');
             } else {
                 favoritos.splice(index, 1);
                 document.getElementById(`imagem-${imagem.date}`).querySelector('.favorito-btn').classList.remove('favoritado');
+                document.getElementById(`imagem-${imagem.date}`).classList.remove('favorito-destaque');
             }
 
             localStorage.setItem('favoritos', JSON.stringify(favoritos));
         }
 
-        
         function filtrarImagens() {
             const valorFiltro = document.getElementById('filtroInput').value.toLowerCase();
             const listaImagens = document.getElementById('listaImagens');
@@ -207,22 +208,20 @@
             });
         }
 
-        
         document.getElementById('filtroInput').addEventListener('input', filtrarImagens);
 
-        
         document.getElementById('carregarMais').addEventListener('click', () => {
             pagina++;
             carregarImagens();
         });
 
-        
         function carregarFavoritos() {
             const favoritos = JSON.parse(localStorage.getItem('favoritos')) || [];
             favoritos.forEach(fav => {
                 const imagemItem = document.getElementById(`imagem-${fav.date}`);
                 if (imagemItem) {
                     imagemItem.querySelector('.favorito-btn').classList.add('favoritado');
+                    imagemItem.classList.add('favorito-destaque');
                 }
             });
         }
@@ -244,4 +243,3 @@
     </script>
 </body>
 </html>
-
